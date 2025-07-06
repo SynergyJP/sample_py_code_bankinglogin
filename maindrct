@@ -1,0 +1,211 @@
+import string
+from customer import customer_menu
+from bank_teller import bank_teller_menu
+from TestBank.consts import PATH
+
+def validate_input(user_input: str, input_type: str):
+    
+   
+    if input_type == "email":
+        if user_input.count("@") != 1 or user_input.count(".") != 1:
+            print("....")
+            return False
+
+    elif input_type == "phone":
+        if len(user_input) != 10:
+            print("....")
+            return False
+
+        if not user_input.isnumeric():
+            print("....")
+            return False
+
+    elif input_type == "password":
+        if not (8 <= len(user_input) <= 16):
+            print(".... ")
+            return False
+
+        for char in user_input:
+            if char not in password_allowed:
+                print("....")
+                return False
+    
+    
+    elif input_type == "pin":
+        if len(user_input) != 5:
+            print("....")
+            return False
+
+        if not user_input.isnumeric():
+            print("....")
+            return False
+
+     
+    elif input_type == "username":
+        if not user_input.isalnum():
+            print("....")
+            return False
+
+    return True
+
+
+def check_if_user_and_has_account(user, email_, pwd, phone_num):
+  
+    strip_func = lambda x: x.strip() # An anonymous function that helps is stripping all the lines and items from the read file
+    if not email_ and not phone_num:
+        print("....")
+        return False, "No"
+
+    
+    with open(f"{PATH}/users.txt", "r") as file:
+        lines = file.readlines()
+        columns: list[str] = lines[0].strip().split(",")
+        for line in lines[1:]:
+            if not line.strip(): # If line is empty (no data, e.g, "") continue to next line
+                continue
+
+            username, email, phone, password, pin, account_type, has_account  = list(map(strip_func, line.strip().split(",")))
+
+            if user == username and pwd == password:
+                if email_ and email_ != email:
+                    print("....")
+                    break
+                elif phone_num and phone_num != phone:
+                    print("....")
+                    break
+
+                print("Log in Successful\n")
+                print(f"== Welcome {account_type} {username} ==")
+                return account_type, has_account
+
+        print("....")
+        return False, "No"
+
+
+def signup():
+
+    username = input("Username: ")
+    if not validate_input(username, "username"):
+        return False
+
+    email = input("Email: ")
+    if not validate_input(email, "email"):
+        return False
+
+    password = input("Password: ")
+    if not validate_input(password, "password"):
+        return False
+
+    phone = input("Phone: ")
+    if not validate_input(phone, "phone"):
+        return False
+
+    pin = input("5 diggit PIN: ")
+    if not validate_input(pin, "pin"):
+        return False
+
+    with open(f"{PATH}/users.txt", "a+") as file:
+        _ = file.write(f"{username}, {email}, {phone}, {password}, {pin}, Customer, No\n")
+        print("....")
+
+    return True
+
+def login(login_email: bool = True):
+    
+    phone = ""
+    email = ""
+
+    
+    username: str = input("Username (characters and numbers only): ")
+    if not validate_input(username, "username"):
+        return False, "No"
+
+
+    if login_email:
+       
+        email = input("Email: ")
+        if not validate_input(email, "email"):
+            return False, "No"
+
+    else:
+        
+        phone = input("Phone number: ")
+        if not validate_input(phone, "phone"):
+            return False, "No"
+
+    
+    password: str = input("Password: ")
+    if not validate_input(password, "password"):
+        return False, "No"
+
+    
+    return check_if_user_and_has_account(username, email, password, phone)
+
+def start_bank():
+
+    failed_attmpt_counter = 0
+
+    while True:
+        print()
+        print(f"1. Login")
+        print(f"2. Signup")
+        access_type = int(input("Choose operation: "))
+
+        if access_type == 1:
+            print()
+            print("1. Login by email")
+            print("2. Login by phone")
+            print("3. Exit")
+
+            login_type: int | bool = int(input("Login type: "))
+            email_login: bool = True
+
+            if login_type == 1:
+                email_login = True
+            elif login_type == 2:
+                email_login = False
+            elif login_type == 3:
+                print("----------------------------------------------------")
+                continue
+
+            logged_in, has_account = login(email_login)
+            if not logged_in:
+                failed_attmpt_counter += 1
+                remaining_attempts = 3 - failed_attmpt_counter
+                print(f"remaining attempts {remaining_attempts}")
+                if remaining_attempts == 0:
+                    print("....")
+                    exit()
+
+                continue
+
+            if logged_in == "Customer":
+                if has_account == "No":
+                    print("....")
+                else:
+                    _ = customer_menu()
+            elif logged_in == "Manager":
+                manager_menu()
+            elif logged_in == "Bank Teller":
+                bank_teller_menu()
+            elif logged_in == "Auditor":
+                auditor_menu()
+
+            break
+
+        elif access_type == 2:
+            if not signup():
+                print("....")
+                continue
+            print()
+        elif access_type == 3:
+            print("....")
+            break
+        else:
+            print("....")
+
+if __name__ == "__main__":
+    password_allowed = ["@", "_", "."]
+    password_allowed.extend(list(map(str, string.digits)))
+    password_allowed.extend(list(string.ascii_letters))
+    start_bank()
