@@ -1,0 +1,284 @@
+from TestBank.consts import PATH 
+from datetime import datetime 
+
+def customer_menu():
+    while True:
+        print("1. ")
+        print("2. ")
+        print("3. ")
+        print("4. ")
+        print("5. Exit")
+
+        operation = int(input("Choose Operation: "))
+
+        if operation == 1:
+            ----()
+        elif operation == 2:
+            ----()
+        elif operation == 3:
+            ----()
+        elif operation == 4:
+            ----()
+        elif operation == 5:
+            print("Logged Out.")
+            break
+        else:
+            print("Invalid operation.")
+
+def check_account_balance():
+    account_num = input("Account number: ").strip()
+    customerID = input("Your customer ID: ").strip()
+
+    while True:
+        print("\nChoose an option:")
+        print("1. Continue")
+        print("2. Return to main menu")
+
+        option = input("Enter your option: ")
+        if option == "1":
+            try:
+                with open(f"{PATH}/accounts.txt", "r") as file:
+                    lines = file.readlines()
+
+                for line in lines[1:]:
+                    row = line.strip().split(",")
+                   ----, ----, ----, ----, ----, ----, branch_id = row
+
+                    if account_number.strip() == account_num and customerID.strip() == customer_id:
+                        print(f"Account Balance: {account_balance}")
+                        return
+      
+                print("Account not found or invalid credentials.")
+            except FileNotFoundError:
+                print("File is not found.")
+                return
+        elif option == "2":
+            print("Returning to main menu...")
+            return
+        else:    
+            print("Invalid option.")
+            return
+
+
+def transfer_funds():
+    account_num = input("Account number: ").strip()
+    customerID = input("Your customer ID: ").strip()
+    target_account_num = input("Target account number: ").strip()
+    amount = float(input("Amount to transfer: "))
+    new_transaction_id = "Txxx"
+    while True:
+        print("\nChoose an option:")
+        print("1. Continue")
+        print("2. Return to main menu")
+        option = input("Enter your option: ")
+        
+        if option == "1":
+            try:
+                with open(f"{PATH}/accounts.txt", "r") as file:
+                    lines = file.readlines()
+                updated_lines = []
+                source_found = False
+                target_found = False
+
+                for line in lines:
+                    row = line.strip().split(",")
+                    if row[0].strip() == account_num and row[1].strip() == customerID:
+                        source_found = True
+                        if float(row[3].strip()) >= amount:
+                            row[3] = str(float(row[3]) - amount)
+                        else:
+                            print("Insufficient funds.")
+                            return
+                    elif row[0].strip() == target_account_num:
+                        target_found = True
+                        row[3] = str(float(row[3]) + amount)
+                    updated_lines.append(",".join(row))
+
+                if source_found and target_found:
+                    with open(f"{PATH}/accounts.txt", "w") as file:
+                        file.write("\n".join(updated_lines))
+
+                    with open(f"{PATH}/transactions.txt", "a+") as file:
+                        file.seek(0) 
+                        lines = file.readlines()
+                        for line in lines[1:]:
+                            if not line:
+                                continue
+
+                            transaction_id,_,_,_,_,_,_,_,_ = list(map(lambda x: x.strip(), line.strip().split(",")))
+                            new_transaction_id = f"T{int(transaction_id[1:]) + 1:03d}"
+                        file.write(f"{new_transaction_id},{str(customerID)},----, {datetime.now().strftime("%Y-%m-%d")},Transfer from account to account,Fund Transfer,Authorized\n")
+                    print("Transfer successful.")
+                else:
+                    print("Transfer failed. Check account numbers and try again.")
+                return
+        
+            except FileNotFoundError:
+                print("File is not found.")
+                return
+        elif option == "2":
+            print("Returning to main menu...")
+            return
+        else:
+            print("Invalid option.")    
+
+
+def pay_bills():
+    account_num = input("Account number: ").strip()
+    customerID = input("Your customer ID: ").strip()
+    bill_amount = float(input("Bill amount: ").strip())
+    new_transaction_id = "TTxxx"
+
+    while True:
+        print("\nChoose an option:")
+        print("1. Continue")
+        print("2. Return to main menu")
+        option = input("Enter your option: ")
+        
+        if option == "1":
+            try:
+                
+                with open(f"{PATH}/accounts.txt", "r") as file:
+                    lines = file.readlines()
+
+                updated_lines = []
+                account_found = False
+                
+                for line in lines:
+                    row = line.strip().split(",")
+                    if row[0].strip() == account_num and row[1].strip() == customerID:
+                        account_found = True
+                        if float(row[3].strip()) >= bill_amount:
+                            row[3] = str(float(row[3].strip()) - bill_amount)
+                            print("Bill paid successfully.")
+                        else:
+                            print("Insufficient funds.")
+                            return
+                    updated_lines.append(",".join(row))
+
+                if account_found:
+                    with open(f"{PATH}/accounts.txt", "w") as file:
+                        file.write("\n".join(updated_lines))
+
+                    with open(f"{PATH}/transactions.txt", "a+") as file:
+                        file.seek(0)
+                        lines = file.readlines()
+                        for line in lines[1:]:
+                            if not line:
+                                continue
+
+                            transaction_id,_,_,_,_,_,_,_,_ = list(map(lambda x: x.strip(), line.strip().split(",")))
+                            new_transaction_id = f"T{int(transaction_id[1:]) + 1:03d}"
+                        file.write(f"{new_transaction_id},{str(customerID)},----, {datetime.now().strftime("%Y-%m-%d")},Transfer from account to account,Fund Transfer,Authorized\n")
+                else:
+                    print("Account not found or invalid credentials.")
+                return
+            except FileNotFoundError:
+                print("File is not found.")
+                return
+        elif option == "2":
+            print("Returning to main menu...")
+            return 
+        else:
+            print("Invalid option.")
+
+
+def request_account_statements():
+    account_num = input("Account number: ").strip()
+    customerID = input("Your customer ID: ").strip()
+    while True:
+        print("\nChoose an option:")
+        print("1. Continue")
+        print("2. Return to main menu")
+        option = input("Enter your option: ")   
+        
+        if option == "1":
+            found = False
+
+            try:
+                # Open accounts.txt and get the account details of the customer
+                # if the account is found, print the details
+                with open(f"{PATH}/accounts.txt", "r") as file:
+                    lines = file.readlines()
+
+                # For each account in accounts find the account and get info about it
+                for line in lines[1:]:
+                    row = line.strip().split(",")
+                    if row[0].strip() == account_num and row[1].strip() == customerID:
+                        found = True
+                        print("Account Statement:")
+                        print(f"Account Number: {row[0]}")
+                        print(f"Customer ID: {row[1]}")
+                        print(f"Account Type: {row[2]}")
+                        print(f"Account Balance: {row[3]}")
+                        print(f"Status: {row[4]}")
+                        print(f"Creation Date: {row[5]}")
+                        print(f"Last Activity Date: {row[6]}")
+                        print(f"Transaction Limit: {row[7]}")
+                        print(f"Branch ID: {row[8]}")
+                        return
+                    
+                if not found:
+                    print("....")
+            except FileNotFoundError:
+                print("....")
+                return
+            
+        elif option == "2":
+            print("....")
+            return
+        else:
+            print("....")
+
+
+
+def update_contact_details():
+    customerID = input("Your customer ID: ").strip()
+    new_email = input("New email: ").strip()
+    new_phone = input("New phone number: ").strip()
+    while True:
+        print("\nChoose an option:")
+        print("1. Continue")
+        print("2. Return to main menu")
+        option = input("Enter your option: ")
+        if option == "1":
+
+            try:
+                
+                with open(f"{PATH}/customers.txt", "r") as file:
+                    lines = file.readlines()
+
+                updated_lines = []
+                customer_found = False
+
+                
+                for line in lines:
+                    row = line.strip().split(",")
+                    if row[0].strip() == customerID:
+                        customer_found = True
+                        row[2] = new_email
+                        row[3] = new_phone
+                    updated_lines.append(",".join(row))
+
+                
+                if customer_found:
+                    with open(f"{PATH}/customers.txt", "w") as file:
+                        file.write("\n".join(updated_lines))
+                    print("....")
+                else:
+                    print("Customer not found.")
+                return
+            except FileNotFoundError:
+                print("Data not found.")
+                return
+        elif option == "2":
+            print("Returning to main menu...")
+            return
+        else:
+            print("Invalid option.")
+
+
+if __name__ == "__main__":
+    while True:
+        if customer_menu() == 1:
+            break
